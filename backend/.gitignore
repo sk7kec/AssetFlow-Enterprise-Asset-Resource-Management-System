@@ -1,0 +1,111 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# AssetFlow Backend — .gitignore
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ─── Python ───────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+wheels/
+*.whl
+MANIFEST
+.eggs/
+
+# ─── Virtual Environments ─────────────────────────────────────────
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+
+# Keep .env.example but never commit real .env
+!.env.example
+
+# ─── Testing ──────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+coverage.xml
+*.cover
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+nosetests.xml
+test-results/
+
+# ─── IDE & Editors ────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# ─── Logs ─────────────────────────────────────────────────────────
+logs/
+*.log
+*.log.*
+
+# ─── Uploads (user content — not tracked in git) ──────────────────
+uploads/images/
+uploads/documents/
+uploads/codes/
+uploads/maintenance/
+
+# But track the uploads folder structure
+!uploads/.gitkeep
+
+# ─── Type Checkers & Linters ──────────────────────────────────────
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+.pyre/
+.ruff_cache/
+
+# ─── Profiling ────────────────────────────────────────────────────
+*.prof
+*.lprof
+
+# ─── Docker ───────────────────────────────────────────────────────
+.docker/
+
+# ─── Node (if frontend is in same repo) ───────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─── Operating System ─────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ─── Secrets (never commit these!) ────────────────────────────────
+*.pem
+*.key
+*.cert
+*.p12
+secrets/
+.secrets/

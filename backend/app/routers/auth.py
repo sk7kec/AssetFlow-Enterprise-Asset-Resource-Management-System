@@ -1,104 +1,101 @@
-from fastapi import APIRouter
-from fastapi import HTTPException
+"""
+Authentication router - signup, login, password reset, current user.
+All endpoints documented for Swagger UI.
+"""
 
-from app.schemas.user_schema import (
+from fastapi import APIRouter, Depends, status
+
+from app.dependencies.auth import get_auth_service, get_current_user
+from app.schemas.auth import (
+    ForgotPasswordRequest,
+    MessageResponse,
+    RefreshTokenRequest,
+    ResetPasswordRequest,
+    TokenResponse,
+    UserLogin,
+    UserResponse,
     UserSignup,
-    UserLogin
 )
+from app.services.auth_service import AuthService
 
-from app.database import users_collection
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-from app.security import (
-    hash_password,
-    verify_password
+
+@router.post(
+    "/signup",
+    response_model=UserResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Register a new user",
+    description="Create a new account. First user becomes admin automatically.",
 )
+async def signup(
+    data: UserSignup,
+    auth_service: AuthService = Depends(get_auth_service),
+) -> UserResponse:
+    return await auth_service.signup(data)
 
-from app.utils.auth_utils import create_access_token
 
-router = APIRouter(
-    prefix="/auth",
-    tags=["Authentication"]
+@router.post(
+    "/login",
+    response_model=TokenResponse,
+    summary="Login and get JWT tokens",
+    description="Authenticate with email/password. Returns access and refresh tokens.",
 )
+async def login(
+    data: UserLogin,
+    auth_service: AuthService = Depends(get_auth_service),
+) -> TokenResponse:
+    return await auth_service.login(data)
 
-# ---------------- SIGNUP ---------------- #
 
-@router.post("/signup")
+@router.post(
+    "/refresh",
+    response_model=TokenResponse,
+    summary="Refresh access token",
+    description="Get a new access token using a valid refresh token.",
+)
+async def refresh_token(
+    data: RefreshTokenRequest,
+    auth_service: AuthService = Depends(get_auth_service),
+) -> TokenResponse:
+    return await auth_service.refresh_access_token(data.refresh_token)
 
-def signup(user: UserSignup):
 
-    existing = users_collection.find_one(
-        {"email": user.email}
-    )
+@router.get(
+    "/me",
+    response_model=UserResponse,
+    summary="Get current authenticated user",
+    description="Returns the profile of the currently logged-in user.",
+)
+async def get_me(
+    current_user: UserResponse = Depends(get_current_user),
+) -> UserResponse:
+    return current_user
 
-    if existing:
 
-        raise HTTPException(
-            status_code=400,
-            detail="Email already exists"
-        )
+@router.post(
+    "/forgot-password",
+    response_model=MessageResponse,
+    summary="Request password reset",
+    description="Send a password reset token to the user's email.",
+)
+async def forgot_password(
+    data: ForgotPasswordRequest,
+    auth_service: AuthService = Depends(get_auth_service),
+) -> MessageResponse:
+    result = await auth_service.forgot_password(data)
+    return MessageResponse(message=result["message"])
 
-    user_data = {
 
-        "name": user.name,
-
-        "email": user.email,
-
-        "password": hash_password(user.password),
-
-        "department": user.department,
-
-        "role": "Employee",
-
-        "status": "Active"
-    }
-
-    users_collection.insert_one(user_data)
-
-    return {
-
-        "message": "Account Created Successfully"
-    }
-
-# ---------------- LOGIN ---------------- #
-
-@router.post("/login")
-
-def login(user: UserLogin):
-
-    db_user = users_collection.find_one(
-        {"email": user.email}
-    )
-
-    if not db_user:
-
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid Email"
-        )
-
-    if not verify_password(
-            user.password,
-            db_user["password"]):
-
-        raise HTTPException(
-            status_code=401,
-            detail="Wrong Password"
-        )
-
-    token = create_access_token({
-
-        "email": db_user["email"],
-
-        "role": db_user["role"]
-
-    })
-
-    return {
-
-        "access_token": token,
-
-        "token_type": "bearer",
-
-        "role": db_user["role"]
-
-    }
+@router.post(
+    "/reset-password",
+    response_model=MessageResponse,
+    summary="Reset password with token",
+    description="Set a new password using the reset token from forgot-password.",
+)
+async def reset_password(
+    data: ResetPasswordRequest,
+    auth_service: AuthService = Depends(get_auth_service),
+) -> MessageResponse:
+    result = await auth_service.reset_password(data)
+    return MessageResponse(message=result["message"])

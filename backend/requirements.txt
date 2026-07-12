@@ -1,8 +1,48 @@
-fastapi
-uvicorn
-pymongo
-python-dotenv
-python-jose
-passlib[bcrypt]
-python-multipart
-email-validator
+# AssetFlow Backend - Production Dependencies
+# Python 3.12+
+
+# Web Framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# Database
+motor==3.6.0
+pymongo==4.10.1
+
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.2.1
+
+# Validation & Settings
+pydantic==2.10.4
+pydantic-settings==2.7.0
+email-validator==2.2.0
+
+# Environment
+python-dotenv==1.0.1
+
+# QR Code & Barcode
+qrcode[pil]==8.0
+python-barcode==0.15.1
+Pillow==11.1.0
+
+# File Upload / Cloud
+cloudinary==1.42.2
+aiofiles==24.1.0
+
+# Reports & Export
+openpyxl==3.1.5
+reportlab==4.2.5
+# pandas is optional - install separately if needed: pip install pandas
+# pandas==2.2.3  # Requires C compiler on Windows - use openpyxl + csv directly
+
+# Rate Limiting & Security
+slowapi==0.1.9
+
+# Logging
+python-json-logger==3.2.1
+
+# Utilities
+httpx==0.28.1
